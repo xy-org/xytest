@@ -87,7 +87,7 @@ def main~EntryPoint(args := Args'parse) {
     isChild : Bool = c."fork() == 0";
     if (isChild) {
         # in child
-        err: mut Int = c.execlp(c"xyc", c"xyc", c".xytest_cache/xytestRunner.xy", c"-L", c"..", c"-o", c"bin/run-tests", c.NULL);
+        err: mut Int = c.execlp(c"xyc", c"xyc", c".xytest_cache/xytestRunner.xy", c"-L", c"..", c"-L", c"deps/", c"-o", c"bin/run-tests", c.NULL);
         if (err) {
             code : Int = c.errno;
             print(f"Error running xyc! {code}\n");
