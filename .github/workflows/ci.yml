@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+
+jobs:
+  # Build job
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Checkout Libxy (deps)
+        uses: actions/checkout@v4
+        with:
+          repository: xy-org/libxy
+          path: 'deps/libxy'
+      - name: Install xyc
+        uses: xy-org/setup-xy@master
+      - name: Run Tests
+        run: |
+          mkdir bin
+          xyc -L deps xytest/ -o bin/xytest && ./bin/xytest xytest
