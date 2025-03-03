@@ -84,8 +84,8 @@ def main~EntryPoint(args := Args'parse) {
     c.close(fd);
 
     print("Building test runner executable...\n");
-    isChild : Bool = c."fork() == 0";
-    if (isChild) {
+    childPid : c.pid_t = c.fork();
+    if (c."childPid == 0") {
         # in child
         err: mut Int = c.execlp(c"xyc", c"xyc", c".xytest_cache/xytestRunner.xy", c"-L", c"..", c"-L", c"deps/", c"-o", c"bin/run-tests", c.NULL);
         if (err) {
@@ -101,7 +101,7 @@ def main~EntryPoint(args := Args'parse) {
     } else {
         # Parent
         status: Int;
-        c.waitpid(-1, status'addrof, 0);
+        c.waitpid(childPid, status'addrof, 0);
         #if (status != 0) {
         #    print(f"Compilation failed with {status}\n");
         #    return;
