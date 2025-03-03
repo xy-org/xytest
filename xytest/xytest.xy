@@ -3,7 +3,7 @@ import libxy.string;
 import libxy.stdio;
 import libxy.array;
 import libxy.memory;
-import posix~[CLib{headers=@{"dirent.h", "sys/stat.h", "fcntl.h"}}] in c;
+import posix~[CLib{headers=@{"dirent.h", "sys/stat.h", "fcntl.h", "sys/wait.h", "sys/types.h"}}] in c;
 
 ;; Collect, Compile, and Run Tests
 struct Args {
@@ -61,35 +61,80 @@ def write(fd: Int, str:Str) {
 
 def main~EntryPoint(args := Args'parse) {
     moduleDirs : mut = Array~Str{};
-    findModules(moduleDirs, args.dir, "");
+    findModules(moduleDirs, args.dir, "xytest");
     print(f"Found {moduleDirs'len} xy modules\n");
 
     c.mkdir(c".xytest_cache", 0777);
     fd: Int = c.open(c".xytest_cache/xytestRunner.xy", c."O_CREAT | O_WRONLY | O_TRUNC", 0644);
-    for (dir in moduleDirs) {
-        write(fd, f"import {dir}\n");
-    }
-    write(fd, "import libxy.arrays\n");
+    #for (dir in moduleDirs) {
+    #    write(fd, f"import {dir};\n");
+    #}
+    write(fd, "import libxy.array;\n");
+    write(fd, "import libxy.string;\n");
+    write(fd, "import libxy.stdio;\n");
+    write(fd, "import xytest;\n");
     write(fd, "\n");
 
     write(fd, "def main~[EntryPoint\{priority=100\}]() \{\n");
-    write(fd, "    tests : Array~TestVector;\n");
-    write(fd, "    for (f in $* ~Test()) \{\n");
-    write(fd, "        tests.append(TestVector\{f});\n");
-    write(fd, "}\n");
+    write(fd, "print(\"Hello from test \\n\");\n");
+    write(fd, "    tests := @for (f in $* ~Test()) TestVector\{\"funcname\", f};\n");
     write(fd, "    runTests(tests);\n");
     write(fd, "\}\n");
 
     c.close(fd);
+
+    print("Building test runner executable...\n");
+    isChild : Bool = c."fork() == 0";
+    if (isChild) {
+        # in child
+        err: mut Int = c.execlp(c"xyc", c"xyc", c".xytest_cache/xytestRunner.xy", c"-L", c"..", c"-o", c"bin/run-tests", c.NULL);
+        if (err) {
+            code : Int = c.errno;
+            print(f"Error running xyc! {code}\n");
+            cErr := Str~MemExt{
+                c.strerror(code),
+                c.strlen(c.strerror(code))
+            };
+            print(f"{cErr}\n");
+        }
+        return;
+    } else {
+        # Parent
+        status: Int;
+        c.waitpid(-1, status'addrof, 0);
+        #if (status != 0) {
+        #    print(f"Compilation failed with {status}\n");
+        #    return;
+        #}
+    }
+
+    print("Running tests...\n");
+    c.execlp(c"bin/run-tests", c"bin/run-tests", c.NULL);
+    #if (err) {
+    #    code : Int = c.errno;
+    #    print(f"Error running tests! {code}\n");
+    #    cErr := Str~MemExt{
+    #        c.strerror(code),
+    #        c.strlen(c.strerror(code))
+    #    };
+    #    print(f"{cErr}\n");
+    #}
 }
 
-struct TestVector {
+struct *TestVector {
+    name: Str;
     testCb: ()->();
 }
 
-def runTests(tests: Array~TestVector) {
+def *runTests(tests: TestVector[1]) {
     print(f"Found {tests'len} tests\n");
+    for (t in tests) {
+        print(f"Running {t.name}... ");
+        [t.testCb]();
+        print("Success\n");
+    }
 }
 
-def dummyTest~Test() {
+def *dummyTest~Test() {
+    print("Hello from withing test\n");
 }
