@@ -24,15 +24,15 @@ struct Test~[TagCtor{label="test"}] {}
 def findModules(foundDirs: mut Array~Str, dir: Str, moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
     cDir : mut Ptr~[c.DIR] = c.opendir(dir'toCStr); # XXX
-    dirent : Ptr~[c."struct dirent"];
+    dirent : Ptr~[inlinec"struct dirent"];
     isModule : mut Bool = false;
     while (true) {
         dirent = c.readdir(cDir);
         # XXX should be null
         if (dirent == Ptr{}) break;
-        entryName := Str~MemExt{c."l_dirent->d_name", c.strlen(c."l_dirent->d_name")};
+        entryName := Str~MemExt{inlinec"{dirent}->d_name", c.strlen(inlinec"{dirent}->d_name")};
         if (entryName'startswith(".")) continue;
-        if(c."l_dirent->d_type == DT_DIR")  {
+        if(inlinec"{dirent}->d_type == DT_DIR")  {
             subdir := f"{dir}/{entryName}";
             submodule : Str;
             if (moduleName.len > 0) {
@@ -76,7 +76,7 @@ def main~EntryPoint(args := Args'parse) {
 
     print("Building test runner executable...\n");
     childPid : c.pid_t = c.fork();
-    if (c."l_childPid == 0") {
+    if (inlinec"{childPid} == 0") {
         # in child
         err: mut Int = c.execlp(c"xyc", c"xyc", c".xytest_cache/xytestRunner.xy", c"-L", c"..", c"-L", c"deps/", c"-o", c"bin/run-tests", c.NULL);
         if (err) {
