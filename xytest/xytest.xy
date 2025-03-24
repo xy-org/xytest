@@ -117,7 +117,7 @@ def main~EntryPoint(args := Args'parse) {
     testCb: ()->();
 }
 
-*def runTests(tests: pseudo TestVector[], len : Size = tests'len) {
+*def runTests(tests: pseudo @TestVector[], len : Size = tests'len) {
     #print(f"Found {tests'len} tests\n");
     #for (t in tests) {
     #    print(f"Running {t.name}... ");
