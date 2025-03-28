@@ -1,0 +1,12 @@
+import xy.ctti;
+import libxy.stdio;
+
+struct TestError {
+}
+
+*def assert(cond: Bool, file: Str = fileof(^cond), line: Uint = lineof(^cond)) {
+    if (!cond) {
+        print(f"{file}:{line} assertion failed\n");
+        error TestError{};
+    }
+}
