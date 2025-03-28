@@ -114,6 +114,7 @@ def main~EntryPoint(args := Args'parse) {
 
 *struct TestVector {
     name: Str;
+    package: Str;
     testCb: ()->();
 }
 
@@ -124,8 +125,4 @@ def main~EntryPoint(args := Args'parse) {
     #    [t.testCb]();
     #    print("Success\n");
     #}
-}
-
-*def dummyTest~Test() {
-    print("Hello from withing test\n");
 }

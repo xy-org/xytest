@@ -1,3 +1,4 @@
+import xy.ctti;
 #import libxy.array;
 import libxy.string;
 import libxy.stdio;
@@ -5,11 +6,15 @@ import xytest;
 
 def main~[EntryPoint{priority=100}]() {
     print("Hello from test runner\n");
-    tests := @for (f in $* ~Test()) TestVector{"funcname", f};
+    tests := @for (f in $* ~Test()) TestVector{
+        name=f'nameof,
+        package=f'packageof,
+        testCb=f,
+    };
     #runTests(tests);
     print(f"Found {tests'len} tests\n");
     for (t in tests) {
-        print(f"Running {t.name}... ");
+        print(f"Running {t.package}.{t.name}... ");
         [t.testCb]();
         print("Success\n");
     }

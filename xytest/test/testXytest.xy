@@ -1,0 +1,8 @@
+import xytest;
+import libxy.string;
+import libxy.stdio;
+
+*def dummyTest~Test() {
+    print("Hello from withing test\n");
+    assert(true);
+}
