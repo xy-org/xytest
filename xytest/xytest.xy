@@ -4,6 +4,7 @@ import libxy.stdio;
 import libxy.fs;
 import libxy.array;
 import libxy.memory;
+import libxy.error;
 import posix~[CLib{headers=@{"dirent.h", "sys/stat.h", "fcntl.h", "sys/wait.h", "sys/types.h"}}] in c;
 
 ;; Collect, Compile, and Run Tests
@@ -23,7 +24,7 @@ struct Test~[TagCtor{label="test"}] {}
 
 def findModules(foundDirs: mut Array~Str, dir: Str, moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
-    cDir : mut Ptr~[c.DIR] = c.opendir(dir'toCStr); # XXX
+    cDir : mut Ptr~[c.DIR] = c.opendir(dir'copy.addr);
     dirent : Ptr~[inlinec"struct dirent"];
     isModule : mut Bool = false;
     while (true) {
@@ -113,8 +114,8 @@ def main~EntryPoint(args := Args'parse) {
 }
 
 *struct TestVector {
-    name: Str;
-    package: Str;
+    name: Str~MemStatic;
+    package: Str~MemStatic;
     testCb: ()->();
 }
 
