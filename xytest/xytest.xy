@@ -67,13 +67,14 @@ def main~EntryPoint(args := Args'parse) {
     print(f"Found {moduleDirs'len} xy modules\n");
 
     c.mkdir(c".xytest_cache", 0777);
-    runnerFile := open(".xytest_cache/xytestRunner.xy", OpenFlags{.create, .writeOnly, .truncate});
+    runnerFile : mut = open(".xytest_cache/xytestRunner.xy", OpenFlags{.create, .writeOnly, .truncate});
     for (dir in moduleDirs) {
         runnerFile'write(f"import {dir};\n");
     }
 
     runnerFile'write("{#! cat xytestRunner.src }");
     runnerFile'close;
+    runnerFile = File{-1};
 
     print("Building test runner executable...\n");
     childPid : c.pid_t = c.fork();
@@ -94,10 +95,10 @@ def main~EntryPoint(args := Args'parse) {
         # Parent
         status: Int;
         c.waitpid(childPid, status'addrof, 0);
-        #if (status != 0) {
-        #    print(f"Compilation failed with {status}\n");
-        #    return;
-        #}
+        if (status != 0) {
+            print(f"Compilation failed with {status}\n");
+            return;
+        }
     }
 
     print("Running tests...\n");
