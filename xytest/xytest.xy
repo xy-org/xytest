@@ -22,8 +22,25 @@ def parse(:Args) -> Args {
 ;; Use this struct to mark test function
 struct Test~[TagCtor{label="test"}] {}
 
-def findModules(foundDirs: mut Array~Str, dir: Str, moduleName: Str) {
+def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
+
+    #isModule : Bool;
+    #for (node in ls(dir, .skipHidden)) {
+    #    if (node.type.dir) {
+    #        subdir := path"{dir}/{node.name}";
+    #        submodule := (
+    #            if (len(moduleName) > 0) f"{moduleName}.{node.name}"
+    #            else f"{node.name}"
+    #        );
+    #        findModules(foundDirs, subdir, submodule);
+    #    } elif (!isModule & node.type.file & node.name'endswith(".xy")) {
+    #        .isModule;
+    #        print(f"Found xy module in {dir}\n");
+    #        foundDirs'push(moduleName'copy);
+    #    }
+    #}
+
     cDir : mut Ptr~[c.DIR] = c.opendir(dir'copy.addr);
     dirent : Ptr~[inlinec"struct dirent"];
     isModule : mut Bool = false;

@@ -2,6 +2,7 @@ import xy.ctti;
 #import libxy.array;
 import libxy.string;
 import libxy.stdio;
+import libxy.perf;
 import xytest;
 
 def main~[EntryPoint{priority=100}]() {
@@ -11,6 +12,9 @@ def main~[EntryPoint{priority=100}]() {
         package=f'packageof,
         testCb=f,
     };
+
+    testingStart := time();
+
     #runTests(tests);
     print(f"Found {tests'len} tests\n");
     for (t in tests) {
@@ -18,4 +22,11 @@ def main~[EntryPoint{priority=100}]() {
         [t.testCb]();
         print("Success\n");
     }
+
+    elapsed := time() - testingStart;
+    elapsedS := elapsed / 1000000000;
+    elapsedMs := (elapsed - elapsedS * 1000000000) / 1000000;
+
+    print(f"=============== {tests'len} passed in {elapsedS}.{elapsedMs}s ===============\n");
 }
+
