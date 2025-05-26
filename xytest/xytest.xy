@@ -41,14 +41,15 @@ def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName
     #    }
     #}
 
-    cDir : mut Ptr~[c.DIR] = c.opendir(dir'copy.addr);
+    cDir : mut Ptr~[c.DIR] = c.opendir(dir'copy.addr~[c.char]);
     dirent : Ptr~[inlinec"struct dirent"];
     isModule : mut Bool = false;
     while (true) {
         dirent = c.readdir(cDir);
         # XXX should be null
         if (dirent == Ptr{}) break;
-        entryName := Str~MemExt{inlinec"{dirent}->d_name", c.strlen(inlinec"{dirent}->d_name")};
+        direntName: Ptr~Byte = inlinec"(int8_t*){dirent}->d_name";
+        entryName := Str~MemExt{direntName, c.strlen(inlinec"{dirent}->d_name")};
         if (entryName'startswith(".")) continue;
         if(inlinec"{dirent}->d_type == DT_DIR")  {
             subdir := f"{dir}/{entryName}";
@@ -102,7 +103,7 @@ def main~EntryPoint(args := Args'parse) {
             code : Int = c.errno;
             print(f"Error running xyc! {code}\n");
             cErr := Str~MemExt{
-                c.strerror(code),
+                Ptr~Byte{c.strerror(code)},
                 c.strlen(c.strerror(code))
             };
             print(f"{cErr}\n");
