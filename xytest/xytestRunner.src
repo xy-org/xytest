@@ -26,12 +26,12 @@ def main~[EntryPoint{priority=100}]() {
 
     elapsed := time() - testingStart;
     elapsedS := elapsed / 1000000000;
-    elapsedMs := (elapsed - elapsedS * 1000000000) / 1000000;
+    elapsedDecis := (elapsed \mod 1000000000l) / 100000000;
 
     badge := badge(tests'len);
     print(
         f"{esc(.green, .bold)}\
-        ===== {tests'len} passed in {elapsedS}.{elapsedMs}s {badge}=====\
+        ===== {tests'len} passed in {elapsedS}.{elapsedDecis}s {badge}=====\
         {esc(.reset)}\n"
     );
 }
