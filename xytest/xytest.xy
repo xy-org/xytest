@@ -5,7 +5,7 @@ import libxy.fs;
 import libxy.array;
 import libxy.memory;
 import libxy.error;
-import posix~[CLib{headers=@{"dirent.h", "sys/stat.h", "fcntl.h", "sys/wait.h", "sys/types.h"}}] in c;
+import libxy.process;
 
 ;; Collect, Compile, and Run Tests
 struct Args {
@@ -25,58 +25,22 @@ struct Test~[TagCtor{label="test"}] {}
 def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
 
-    #isModule : Bool;
-    #for (node in ls(dir, .skipHidden)) {
-    #    if (node.type.dir) {
-    #        subdir := path"{dir}/{node.name}";
-    #        submodule := (
-    #            if (len(moduleName) > 0) f"{moduleName}.{node.name}"
-    #            else f"{node.name}"
-    #        );
-    #        findModules(foundDirs, subdir, submodule);
-    #    } elif (!isModule & node.type.file & node.name'endswith(".xy")) {
-    #        .isModule;
-    #        print(f"Found xy module in {dir}\n");
-    #        foundDirs'push(moduleName'copy);
-    #    }
-    #}
-
-    cDir : mut Ptr~[c.DIR] = c.opendir(dir'copy.addr~[c.char]);
-    dirent : Ptr~[inlinec"struct dirent"];
-    isModule : mut Bool = false;
-    while (true) {
-        dirent = c.readdir(cDir);
-        # XXX should be null
-        if (dirent == Ptr{}) break;
-        direntName: Ptr~Byte = inlinec"(int8_t*){dirent}->d_name";
-        entryName := Str~MemExt{direntName, c.strlen(inlinec"{dirent}->d_name")};
-        if (entryName'startswith(".")) continue;
-        if(inlinec"{dirent}->d_type == DT_DIR")  {
-            subdir := f"{dir}/{entryName}";
-            submodule : Str;
-            if (moduleName.len > 0) {
-                submodule = f"{moduleName}.{entryName}";
-            } else {
-                submodule = f"{entryName}";
-            }
+    isModule : Bool;
+    for (node in ls(dir, .type)) {
+        if (node.type.dir) {
+            subdir := path"{dir}/{node.name}";
+            submodule := (
+                if (len(moduleName) > 0) f"{moduleName}.{node.name}"
+                else f"{node.name}"
+            );
             findModules(foundDirs, subdir, submodule);
-        }
-        if (entryName'endswith(".xy")) {
-            if (isModule) {
-
-            } else {
-                isModule = true;
-                print(f"Found xy module in {dir}\n");
-                fd : mut = f"{moduleName}";
-                foundDirs'push(fd);
-                fd = Str{}; # XXX workaround for memory not being moved to push
-            }
+        } elif (!isModule & node.type.file & node.name'endswith(".xy")) {
+            .isModule;
+            print(f"Found xy module in {dir} {moduleName}\n");
+            d : mut = moduleName'copy;
+            foundDirs'push(d =>);
         }
     }
-}
-
-def write(fd: Int, str:Str) {
-    c.write(fd, str.addr, str.len);
 }
 
 def main~EntryPoint(args := Args'parse) {
@@ -84,7 +48,7 @@ def main~EntryPoint(args := Args'parse) {
     findModules(moduleDirs, args.dir, args.dir);
     print(f"Found {moduleDirs'len} xy modules\n");
 
-    c.mkdir(c".xytest_cache", 0777);
+    mkdir(".xytest_cache");
     runnerFile : mut = open(".xytest_cache/xytestRunner.xy", OpenFlags{.create, .writeOnly, .truncate});
     for (dir in moduleDirs) {
         runnerFile'write(f"import {dir};\n");
@@ -95,41 +59,23 @@ def main~EntryPoint(args := Args'parse) {
     runnerFile = File{-1};
 
     print("Building test runner executable...\n");
-    childPid : c.pid_t = c.fork();
-    if (inlinec"{childPid} == 0") {
-        # in child
-        err: mut Int = c.execlp(c"xyc", c"xyc", c".xytest_cache/xytestRunner.xy", c"-L", c"..", c"-L", c"deps/", c"-o", c"bin/run-tests", c.NULL);
-        if (err) {
-            code : Int = c.errno;
-            print(f"Error running xyc! {code}\n");
-            cErr := Str~MemExt{
-                Ptr~Byte{c.strerror(code)},
-                c.strlen(c.strerror(code))
-            };
-            print(f"{cErr}\n");
-        }
+    xycArgs : Array~Str;
+    xycArgs'push(".xytest_cache/xytestRunner.xy");
+    xycArgs'push("-L");
+    xycArgs'push("..");
+    xycArgs'push("-L");
+    xycArgs'push("deps/");
+    xycArgs'push("-o");
+    xycArgs'push("bin/run-tests");
+    compilationStatus := run("xyc", xycArgs)'wait();
+    if (compilationStatus != 0) {
+        print(f"Compilation failed with {compilationStatus}\n");
         return;
-    } else {
-        # Parent
-        status: Int;
-        c.waitpid(childPid, status'addrof, 0);
-        if (status != 0) {
-            print(f"Compilation failed with {status}\n");
-            return;
-        }
     }
 
     print("Running tests...\n");
-    c.execlp(c"bin/run-tests", c"bin/run-tests", c.NULL);
-    #if (err) {
-    #    code : Int = c.errno;
-    #    print(f"Error running tests! {code}\n");
-    #    cErr := Str~MemExt{
-    #        c.strerror(code),
-    #        c.strlen(c.strerror(code))
-    #    };
-    #    print(f"{cErr}\n");
-    #}
+    runArgs : Array~Str;
+    run("bin/run-tests",runArgs)'wait();
 }
 
 *struct TestVector {
