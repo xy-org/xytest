@@ -25,8 +25,8 @@ def main~[EntryPoint{priority=100}]() {
     }
 
     elapsed := time() - testingStart;
-    elapsedS := elapsed / 1000000000;
-    elapsedDecis := (elapsed \mod 1000000000l) / 100000000;
+    elapsedS := elapsed / 1_000_000_000l;
+    elapsedDecis := (elapsed \mod 1_000_000_000l) / 100_000_000l;
 
     badge := badge(tests'len);
     print(
