@@ -30,7 +30,7 @@ def main~[EntryPoint{priority=100}]() {
 
     badge := badge(tests'len);
     print(
-        f"{Esc{.bold, fg=Color{.green}}}\
+        f"{Esc{.bold, .fg.green}}\
         ===== {tests'len} passed in {elapsedS}.{elapsedDecis}s {badge}=====\
         {Esc{.reset}}\n"
     );
