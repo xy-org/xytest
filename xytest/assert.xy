@@ -4,9 +4,29 @@ import libxy.stdio;
 struct TestError {
 }
 
-*def assert(cond: Bool, file: Str = fileof(^cond), line: Uint = lineof(^cond)) {
+*def assert(
+    cond: Bool,
+    file: Str = fileof(^cond), line: Uint = linenoof(^cond),
+    src: Str = srclineof(^cond),
+) {
     if (!cond) {
-        print(f"{file}:{line} assertion failed\n");
+        print(f"\n{file}:{line} Assertion failed\n");
+        print(f"> {src}\n");
+        error TestError{};
+    }
+}
+
+*def equal(
+    lhs: pseudo Any, rhs: pseudo Any,
+    file: Str = fileof(^lhs), line: Uint = linenoof(^lhs),
+    src: Str = srclineof(^lhs),
+    cmpRes : Bool = ^cmpEq(lhs, rhs),
+    lhsStr: Str = f"{lhs}", rhsStr: Str = f"{rhs}",
+) {
+    if (!cmpRes) {
+        print(f"\n{file}:{line} Assertion failed\n");
+        print(f"> {src}\n");
+        print(f"{lhsStr} != {rhsStr}\n");
         error TestError{};
     }
 }
