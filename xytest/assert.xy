@@ -18,15 +18,15 @@ struct TestError {
 
 *def equal(
     lhs: pseudo Any, rhs: pseudo Any,
-    file: Str = fileof(^lhs), line: Uint = linenoof(^lhs),
-    src: Str = srclineof(^lhs),
     cmpRes : Bool = ^cmpEq(lhs, rhs),
-    lhsStr: Str = f"{lhs}", rhsStr: Str = f"{rhs}",
-) {
-    if (!cmpRes) {
+) if (!cmpRes) fail(
+    file=fileof(^lhs), line=linenoof(^lhs), src=srclineof(^lhs),
+    lhsStr=f"{lhs}", rhsStr=f"{rhs}"
+);
+
+def fail(file: Str, line: Uint, src: Str, lhsStr: Str, rhsStr: Str) {
         print(f"\n{file}:{line} Assertion failed\n");
         print(f"> {src}\n");
         print(f"{lhsStr} != {rhsStr}\n");
         error TestError{};
-    }
 }
