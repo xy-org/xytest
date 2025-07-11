@@ -6,27 +6,25 @@ struct TestError {
 
 *def assert(
     cond: Bool,
-    file: Str = fileof(^cond), line: Uint = linenoof(^cond),
-    src: Str = srclineof(^cond),
-) {
-    if (!cond) {
-        print(f"\n{file}:{line} Assertion failed\n");
-        print(f"> {src}\n");
-        error TestError{};
-    }
-}
+    msg: Str = "",
+) if (!cond) fail(
+    file=fileof(^cond), line=linenoof(^cond),
+    src=srclineof(^cond), msg=msg,
+);
 
 *def equal(
     lhs: pseudo Any, rhs: pseudo Any,
     cmpRes : Bool = ^cmpEq(lhs, rhs),
 ) if (!cmpRes) fail(
     file=fileof(^lhs), line=linenoof(^lhs), src=srclineof(^lhs),
-    lhsStr=f"{lhs}", rhsStr=f"{rhs}"
+    msg=f"{lhs} != {rhs}"
 );
 
-def fail(file: Str, line: Uint, src: Str, lhsStr: Str, rhsStr: Str) {
+def fail(file: Str, line: Uint, src: Str, msg: Str) {
         print(f"\n{file}:{line} Assertion failed\n");
         print(f"> {src}\n");
-        print(f"{lhsStr} != {rhsStr}\n");
+        if (msg'len > 0) {
+            print(f"{msg}\n");
+        }
         error TestError{};
 }
