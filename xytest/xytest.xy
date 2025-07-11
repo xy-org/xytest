@@ -34,7 +34,7 @@ def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName
                 else f"{node.name}"
             );
             findModules(foundDirs, subdir, submodule);
-        } elif (!isModule & node.type.file & node.name'endswith(".xy")) {
+        } elif (!isModule && node.type.file && node.name'endswith(".xy")) {
             .isModule;
             print(f"Found xy module in {dir} {moduleName}\n");
             d : mut = moduleName'copy;
