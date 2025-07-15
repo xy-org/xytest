@@ -1,4 +1,4 @@
-import libxy.cli in cli;
+import libxy.cli;
 import libxy.string;
 import libxy.stdio;
 import libxy.fs;
@@ -15,7 +15,14 @@ struct Args {
 
 def parse(:Args) -> Args {
     args: Args;
-    cli.parse(args);
+
+    schema: CliSchema;
+    schema'param("dir", .positional);
+
+    parsed := schema'parse();
+    for (arg in parsed) {
+        args.dir = arg.value'copy;
+    }
     return args;
 }
 
