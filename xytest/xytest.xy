@@ -17,6 +17,7 @@ def parse(:Args) -> Args {
     args: Args;
 
     schema: CliSchema;
+    schema'prog("xytest", short="Discover and Run Tests");
     schema'param("dir", .positional);
 
     parsed := schema'parse();
