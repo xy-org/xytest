@@ -100,3 +100,18 @@ def main~EntryPoint(args := Args'parse) {
     #    print("Success\n");
     #}
 }
+
+*def badge(num: Size) -> Str~MemStatic {
+    if (num > 0 && num <= 2) return "🥳 ";
+    if (num == 42) return "🤪 ";
+    if (num == 69) return "☯️ ";
+    if (num == 100) return "💯 ";
+    if (num >= 300 && num < 310) return "🐡 ";
+    if (num == 314) return "🥧 ";
+    if (num == 628) return "🥧🥧 ";
+    if (num == 942) return "🥧🥧🥧 ";
+    if (num >= 1000 && num < 1010) return "🐉 ";
+    if (num >= 2000 && num < 2010) return "🦖 ";
+    if (num >= 10000 && num < 10010) return "🦄 ";
+    return "";
+}

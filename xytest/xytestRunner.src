@@ -1,5 +1,5 @@
 import xy.ctti;
-#import libxy.array;
+import libxy.array;
 import libxy.string;
 import libxy.stdio;
 import libxy.perf;
@@ -8,7 +8,7 @@ import xytest;
 
 def main~[EntryPoint{priority=100}]() {
     print("Hello from test runner\n");
-    tests := @for (f in $* ~Test()) TestVector{
+    tests := Array~TestVector @for (f in $* ~Test()) TestVector{
         name=f'nameof,
         package=f'packageof,
         testCb=f,
@@ -34,19 +34,4 @@ def main~[EntryPoint{priority=100}]() {
         ===== {tests'len} passed in {elapsedS}.{elapsedDecis}s {badge}=====\
         {Esc{.reset}}\n"
     );
-}
-
-def badge(num: Size) -> Str~MemStatic {
-    if (num > 0 && num <= 2) return "🥳 ";
-    if (num == 42) return "🤪 ";
-    if (num == 69) return "☯️ ";
-    if (num == 100) return "💯 ";
-    if (num >= 300 && num < 310) return "🐡 ";
-    if (num == 314) return "🥧 ";
-    if (num == 628) return "🥧🥧 ";
-    if (num == 942) return "🥧🥧🥧 ";
-    if (num >= 1000 && num < 1010) return "🐉 ";
-    if (num >= 2000 && num < 2010) return "🦖 ";
-    if (num >= 10000 && num < 10010) return "🦄 ";
-    return "";
 }
