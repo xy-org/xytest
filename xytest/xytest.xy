@@ -1,11 +1,6 @@
 import libxy.cli;
-import libxy.string;
-import libxy.stdio;
-import libxy.fs;
-import libxy.array;
-import libxy.memory;
-import libxy.error;
-import libxy.process;
+import libxy.(string, stdio, fs, array, memory, error, process, perf, tty);
+
 
 ;; Collect, Compile, and Run Tests
 struct Args {
@@ -28,7 +23,39 @@ def parse(:Args) -> Args {
 }
 
 ;; Use this struct to mark test function
-struct Test~[TagCtor{label="test"}] {}
+*struct Test~[TagCtor{label="test"}] {}
+
+;; Entry point for the test discovery stage
+def main~EntryPoint(args := Args'parse) -> void | Int {
+    moduleDirs : mut = Array~Str{};
+    findModules(moduleDirs, args.dir, args.dir);
+    print(f"Found {moduleDirs'len} xy modules\n");
+
+    mkdir(".xytest_cache");
+    runnerFile : mut = open(".xytest_cache/xytestRunner.xy", OpenFlags{.create, .writeOnly, .truncate});
+    for (dir in moduleDirs) {
+        runnerFile'write(f"import {dir};\n");
+    }
+
+    runnerFile'write("{#! cat xytestRunner.src }");
+    runnerFile'close;
+    runnerFile = File{-1};
+
+    print("Building test runner executable...\n");
+    xycArgs := Array~Str @ {
+        ".xytest_cache/xytestRunner.xy", "-L", "..", "-L", "deps/",
+        "-o", "bin/run-tests",
+    };
+    compilationStatus := run("xyc", xycArgs)'wait();
+    if (compilationStatus != 0) {
+        print(f"Compilation failed with {compilationStatus}\n");
+        error compilationStatus;
+    }
+
+    print("Running tests...\n");
+    runArgs : Array~Str;
+    run("bin/run-tests",runArgs)'wait();
+}
 
 def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
@@ -51,57 +78,35 @@ def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName
     }
 }
 
-def main~EntryPoint(args := Args'parse) {
-    moduleDirs : mut = Array~Str{};
-    findModules(moduleDirs, args.dir, args.dir);
-    print(f"Found {moduleDirs'len} xy modules\n");
-
-    mkdir(".xytest_cache");
-    runnerFile : mut = open(".xytest_cache/xytestRunner.xy", OpenFlags{.create, .writeOnly, .truncate});
-    for (dir in moduleDirs) {
-        runnerFile'write(f"import {dir};\n");
-    }
-
-    runnerFile'write("{#! cat xytestRunner.src }");
-    runnerFile'close;
-    runnerFile = File{-1};
-
-    print("Building test runner executable...\n");
-    xycArgs : Array~Str;
-    xycArgs'push(".xytest_cache/xytestRunner.xy");
-    xycArgs'push("-L");
-    xycArgs'push("..");
-    xycArgs'push("-L");
-    xycArgs'push("deps/");
-    xycArgs'push("-o");
-    xycArgs'push("bin/run-tests");
-    compilationStatus := run("xyc", xycArgs)'wait();
-    if (compilationStatus != 0) {
-        print(f"Compilation failed with {compilationStatus}\n");
-        return;
-    }
-
-    print("Running tests...\n");
-    runArgs : Array~Str;
-    run("bin/run-tests",runArgs)'wait();
-}
-
 *struct TestVector {
     name: Str~MemStatic;
     package: Str~MemStatic;
     testCb: ()->();
 }
 
-*def runTests(tests: pseudo @TestVector[], len : Size = tests'len) {
-    #print(f"Found {tests'len} tests\n");
-    #for (t in tests) {
-    #    print(f"Running {t.name}... ");
-    #    [t.testCb]();
-    #    print("Success\n");
-    #}
+*def runTests(tests: Array~TestVector) -> void | Int {
+    testingStart := time();
+
+    print(f"Found {tests'len} tests\n");
+    for (t in tests) {
+        print(f"Running {t.package}.{t.name}... ");
+        [t.testCb]();
+        print("Success\n");
+    }
+
+    elapsed := time() - testingStart;
+    elapsedS := elapsed / 1_000_000_000l;
+    elapsedDecis := (elapsed \mod 1_000_000_000l) / 100_000_000l;
+
+    badge := badge(tests'len);
+    print(
+        f"{Esc{.bold, .fg.green}}\
+        ===== {tests'len} passed in {elapsedS}.{elapsedDecis}s {badge}=====\
+        {Esc{.reset}}\n"
+    );
 }
 
-*def badge(num: Size) -> Str~MemStatic {
+def badge(num: Size) -> Str~MemStatic {
     if (num > 0 && num <= 2) return "🥳 ";
     if (num == 42) return "🤪 ";
     if (num == 69) return "☯️ ";

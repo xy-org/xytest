@@ -1,12 +1,9 @@
 import xy.ctti;
-import libxy.array;
-import libxy.string;
-import libxy.stdio;
-import libxy.perf;
-import libxy.tty;
+import libxy.(array, string, stdio);
 import xytest;
 
-def main~[EntryPoint{priority=100}]() {
+;; Entry point for the test runner stage
+def main~[EntryPoint{priority=100}]() -> void | Int {
     print("Hello from test runner\n");
     tests := Array~TestVector @for (f in $* ~Test()) TestVector{
         name=f'nameof,
@@ -14,24 +11,5 @@ def main~[EntryPoint{priority=100}]() {
         testCb=f,
     };
 
-    testingStart := time();
-
-    #runTests(tests);
-    print(f"Found {tests'len} tests\n");
-    for (t in tests) {
-        print(f"Running {t.package}.{t.name}... ");
-        [t.testCb]();
-        print("Success\n");
-    }
-
-    elapsed := time() - testingStart;
-    elapsedS := elapsed / 1_000_000_000l;
-    elapsedDecis := (elapsed \mod 1_000_000_000l) / 100_000_000l;
-
-    badge := badge(tests'len);
-    print(
-        f"{Esc{.bold, .fg.green}}\
-        ===== {tests'len} passed in {elapsedS}.{elapsedDecis}s {badge}=====\
-        {Esc{.reset}}\n"
-    );
+    runTests(tests);
 }
