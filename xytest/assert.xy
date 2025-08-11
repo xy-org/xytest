@@ -23,7 +23,7 @@ struct TestError {
 def fail(file: Str, line: Uint, src: Str, msg: Str) {
         print(f"\n{file}:{line} Assertion failed\n");
         print(f"> {src}\n");
-        if (msg'len > 0) {
+        if (msg.size > 0) {
             print(f"{msg}\n");
         }
         error TestError{};

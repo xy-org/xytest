@@ -65,7 +65,7 @@ def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName
         if (node.type.dir) {
             subdir := path"{dir}/{node.name}";
             submodule := (
-                if (len(moduleName) > 0) f"{moduleName}.{node.name}"
+                if (moduleName.size > 0) f"{moduleName}.{node.name}"
                 else f"{node.name}"
             );
             findModules(foundDirs, subdir, submodule);
