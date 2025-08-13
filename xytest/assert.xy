@@ -15,10 +15,16 @@ struct TestError {
 *def equal(
     lhs: pseudo Any, rhs: pseudo Any,
     cmpRes : Bool = ^cmpEq(lhs, rhs),
-) if (!cmpRes) fail(
-    file=fileof(^lhs), line=linenoof(^lhs), src=srclineof(^lhs),
-    msg=f"{lhs} != {rhs}"
-);
+) if (!cmpRes) {
+    msg : Fstr;
+    ^append(msg, lhs);
+    append(msg, " != ");
+    ^append(msg, rhs);
+    fail(
+        file=fileof(^lhs), line=linenoof(^lhs), src=srclineof(^lhs),
+        msg=msg'to(Str)
+    );
+};
 
 def fail(file: Str, line: Uint, src: Str, msg: Str) {
         print(f"\n{file}:{line} Assertion failed\n");
