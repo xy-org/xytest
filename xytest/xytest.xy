@@ -73,7 +73,7 @@ def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName
             .isModule;
             print(f"Found xy module in {dir} {moduleName}\n");
             d : mut = moduleName'copy;
-            foundDirs'push(d =>);
+            foundDirs'append(d =>);
         }
     }
 }
