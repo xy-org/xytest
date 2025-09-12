@@ -54,7 +54,7 @@ def main~EntryPoint(args := Args'parse) -> void | Int {
 
     print("Running tests...\n");
     runArgs : Array~Str;
-    _ = run("bin/run-tests",runArgs)'wait();
+    error run("bin/run-tests",runArgs)'wait();
 }
 
 def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName: Str) {
