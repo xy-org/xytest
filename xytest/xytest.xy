@@ -42,7 +42,7 @@ def main~EntryPoint(args := Args'parse) -> void | Int {
     runnerFile = File{-1};
 
     print("Building test runner executable...\n");
-    xycArgs := Array~Str @ {
+    xycArgs := Array~Str~MemStatic @ {
         ".xytest_cache/xytestRunner.xy", "-L", "..", "-L", "deps/",
         "-o", "bin/run-tests",
     };
@@ -57,7 +57,7 @@ def main~EntryPoint(args := Args'parse) -> void | Int {
     error run("bin/run-tests",runArgs)'wait();
 }
 
-def findModules(foundDirs: mut Array~Str, dir: Str~[.nullTerminated], moduleName: Str) {
+def findModules(foundDirs: mut Array~Str, dir: Str~MemManaged, moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
 
     isModule : Bool;
