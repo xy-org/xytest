@@ -5,7 +5,7 @@ import libxy.(string, stdio, fs, array, memory, error, process, perf, tty);
 ;; Collect, Compile, and Run Tests
 struct Args {
     ;; Where to look for tests
-    dir : Str;
+    dir : Str~MemManaged;
 }
 
 def parse(:Args) -> Args {
@@ -23,11 +23,11 @@ def parse(:Args) -> Args {
 }
 
 ;; Use this struct to mark test function
-*struct Test~[TagCtor{label="test"}] {}
+*struct Test~[xyTag:=TagCtor{label="test"}] {}
 
 ;; Entry point for the test discovery stage
 def main~EntryPoint(args := Args'parse) -> void | Int {
-    moduleDirs : mut = Array~Str{};
+    moduleDirs : mut = Array~[Str~MemManaged]{};
     findModules(moduleDirs, args.dir, args.dir);
     print(f"Found {moduleDirs'len} xy modules\n");
 
@@ -53,11 +53,11 @@ def main~EntryPoint(args := Args'parse) -> void | Int {
     }
 
     print("Running tests...\n");
-    runArgs : Array~Str;
+    runArgs : Array~Str~MemManaged;
     error run("bin/run-tests",runArgs)'wait();
 }
 
-def findModules(foundDirs: mut Array~Str, dir: Str~MemManaged, moduleName: Str) {
+def findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
 
     isModule : Bool;
