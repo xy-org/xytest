@@ -8,7 +8,7 @@ def main~[EntryPoint{priority=100}]() -> void | Int {
     tests := Array~TestVector @for (f in $* ~Test()) TestVector{
         name=f'nameof,
         package=f'packageof,
-        testCb=f,
+        testCb=f'toCallback,
     };
 
     runTests(tests);
