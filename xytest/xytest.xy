@@ -96,7 +96,7 @@ def findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, module
 
     elapsed := time() - testingStart;
     elapsedS := elapsed / 1_000_000_000l;
-    elapsedDecis := (elapsed \mod 1_000_000_000l) / 100_000_000l;
+    elapsedDecis := (elapsed \rem 1_000_000_000l) / 100_000_000l;
 
     badge := badge(tests'len);
     print(
