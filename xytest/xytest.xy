@@ -106,7 +106,7 @@ def findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, module
     );
 }
 
-def badge(num: Size) -> Str~MemStatic {
+def badge(num: Usize) -> Str~MemStatic {
     if (num > 0 && num <= 2) return "🥳 ";
     if (num == 42) return "🤪 ";
     if (num == 69) return "☯️ ";
