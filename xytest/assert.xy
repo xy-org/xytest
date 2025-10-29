@@ -4,7 +4,7 @@ import libxy.stdio;
 struct TestError {
 }
 
-*def assert(
+*func assert(
     cond: Bool,
     msg: Str = "",
 ) if (!cond) fail(
@@ -12,7 +12,7 @@ struct TestError {
     src=srclineof(^cond), msg=msg,
 );
 
-*def equal(
+*func equal(
     lhs: pseudo Any, rhs: pseudo Any,
     cmpRes : Bool = ^cmpEq(lhs, rhs),
 ) if (!cmpRes) {
@@ -26,7 +26,7 @@ struct TestError {
     );
 };
 
-def fail(file: Str, line: Uint, src: Str, msg: Str) {
+func fail(file: Str, line: Uint, src: Str, msg: Str) {
         print(f"\n{file}:{line} Assertion failed\n");
         print(f"> {src}\n");
         if (msg.size > 0) {

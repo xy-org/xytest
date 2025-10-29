@@ -3,7 +3,7 @@ import libxy.(array, string, stdio);
 import xytest;
 
 ;; Entry point for the test runner stage
-def main~[EntryPoint{priority=100}]() -> void | Int {
+func main~[EntryPoint{priority=100}]() -> void | Int {
     print("Hello from test runner\n");
     tests := Array~TestVector @for (f in $* ~Test()) TestVector{
         name=f'nameof,

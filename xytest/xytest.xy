@@ -8,7 +8,7 @@ struct Args {
     dir : Str~MemManaged;
 }
 
-def parse(:Args) -> Args {
+func parse(:Args) -> Args {
     args: Args;
 
     schema: CliSchema;
@@ -26,7 +26,7 @@ def parse(:Args) -> Args {
 *struct Test~[xyTag:=TagCtor{label="test"}] {}
 
 ;; Entry point for the test discovery stage
-def main~EntryPoint(args := Args'parse) -> void | Int {
+func main~EntryPoint(args := Args'parse) -> void | Int {
     moduleDirs : mut = Array~[Str~MemManaged]{};
     findModules(moduleDirs, args.dir, args.dir);
     print(f"Found {moduleDirs'len} xy modules\n");
@@ -57,7 +57,7 @@ def main~EntryPoint(args := Args'parse) -> void | Int {
     error run("bin/run-tests",runArgs)'wait();
 }
 
-def findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, moduleName: Str) {
+func findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
 
     isModule : Bool;
@@ -84,7 +84,7 @@ def findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, module
     testCb: ()->();
 }
 
-*def runTests(tests: Array~TestVector) -> void | Int {
+*func runTests(tests: Array~TestVector) -> void | Int {
     testingStart := time();
 
     print(f"Found {tests'len} tests\n");
@@ -106,7 +106,7 @@ def findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, module
     );
 }
 
-def badge(num: Usize) -> Str~MemStatic {
+func badge(num: Usize) -> Str~MemStatic {
     if (num > 0 && num <= 2) return "🥳 ";
     if (num == 42) return "🤪 ";
     if (num == 69) return "☯️ ";
