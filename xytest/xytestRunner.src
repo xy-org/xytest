@@ -5,7 +5,7 @@ import xytest;
 ;; Entry point for the test runner stage
 func main~[EntryPoint{priority=100}]() -> void | Int {
     print("Hello from test runner\n");
-    tests := Array~TestVector @for (f in $* ~Test()) TestVector{
+    tests := List~TestVector @for (f in $* ~Test()) TestVector{
         name=f'nameof,
         package=f'packageof,
         testCb=f'toCallback,

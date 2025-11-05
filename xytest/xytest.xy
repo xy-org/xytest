@@ -27,7 +27,7 @@ func parse(:Args) -> Args {
 
 ;; Entry point for the test discovery stage
 func main~EntryPoint(args := Args'parse) -> void | Int {
-    moduleDirs : mut = Array~[Str~MemManaged]{};
+    moduleDirs : mut = List~[Str~MemManaged]{};
     findModules(moduleDirs, args.dir, args.dir);
     print(f"Found {moduleDirs'len} xy modules\n");
 
@@ -42,7 +42,7 @@ func main~EntryPoint(args := Args'parse) -> void | Int {
     runnerFile = File{-1};
 
     print("Building test runner executable...\n");
-    xycArgs := Array~Str~MemStatic @ {
+    xycArgs := List~Str~MemStatic @ {
         ".xytest_cache/xytestRunner.xy", "-L", "..", "-L", "deps/",
         "-o", "bin/run-tests",
     };
@@ -53,11 +53,11 @@ func main~EntryPoint(args := Args'parse) -> void | Int {
     }
 
     print("Running tests...\n");
-    runArgs : Array~Str~MemManaged;
+    runArgs : List~Str~MemManaged;
     error run("bin/run-tests",runArgs)'wait();
 }
 
-func findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, moduleName: Str) {
+func findModules(foundDirs: mut List~Str~MemManaged, dir: Str~MemManaged, moduleName: Str) {
     print(f"Looking for tests in {dir}\n");
 
     isModule : Bool;
@@ -84,7 +84,7 @@ func findModules(foundDirs: mut Array~Str~MemManaged, dir: Str~MemManaged, modul
     testCb: ()->();
 }
 
-*func runTests(tests: Array~TestVector) -> void | Int {
+*func runTests(tests: List~TestVector) -> void | Int {
     testingStart := time();
 
     print(f"Found {tests'len} tests\n");
