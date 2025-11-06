@@ -1,5 +1,5 @@
 import libxy.cli;
-import libxy.(string, stdio, fs, array, memory, error, process, perf, tty);
+import libxy.(string, stdio, fs, list, memory, error, process, perf, tty);
 
 
 ;; Collect, Compile, and Run Tests

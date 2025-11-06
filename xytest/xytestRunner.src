@@ -1,5 +1,5 @@
 import xy.ctti;
-import libxy.(array, string, stdio);
+import libxy.(list, string, stdio);
 import xytest;
 
 ;; Entry point for the test runner stage
