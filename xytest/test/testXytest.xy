@@ -2,7 +2,6 @@ import xytest;
 import libxy.string;
 import libxy.stdio;
 
-*func dummyTest~Test() {
-    print("Hello from withing test\n");
+*func assertingTrue~Test() {
     assert(true);
 }

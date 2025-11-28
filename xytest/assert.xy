@@ -2,6 +2,13 @@ import xy.ctti;
 import libxy.stdio;
 
 struct TestError {
+    msg: Str~MemManaged;
+}
+
+func to(te: TestError, :Bool) te.msg.size != 0;
+
+*func unhandled(te: TestError) {
+    print(te.msg);
 }
 
 *func assert(
@@ -26,11 +33,11 @@ struct TestError {
     );
 };
 
-func fail(file: Str, line: Uint, src: Str, msg: Str) {
-        print(f"\n{file}:{line} Assertion failed\n");
-        print(f"> {src}\n");
-        if (msg.size > 0) {
-            print(f"{msg}\n");
-        }
-        error TestError{};
+func fail(file: Str, line: Uint, src: Str, msg: Str) -> void | TestError {
+    fullmsg := f"""
+        \n{file}:{line} Assertion failed
+        > {src}
+        {msg}
+    ";
+    error TestError{ fullmsg => };
 }
