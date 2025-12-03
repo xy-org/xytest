@@ -6,6 +6,9 @@ import libxy.(string, stdio, fs, list, memory, error, process, perf, tty);
 struct Args {
     ;; Where to look for tests
     dir : Str~MemManaged;
+
+    ;; Run tests only form this module
+    module: Str~MemManaged;
 }
 
 func parse(:Args) -> Args {
@@ -14,10 +17,18 @@ func parse(:Args) -> Args {
     schema: CliSchema;
     schema'prog("xytest", short="Discover and Run Tests");
     schema'param("dir", .positional);
+    schema'param(
+        "module", short=`m`,
+        desc="Compile and run tests only from modules matching given name",
+    );
 
     parsed := schema'parse();
     for (arg in parsed) {
-        args.dir = arg.value'copy;
+        if (arg.name == "dir") {
+            args.dir = arg.value'copy;
+        } elif (arg.name == "module") {
+            args.module = arg.value'copy;
+        }
     }
     return args;
 }
@@ -29,6 +40,7 @@ func parse(:Args) -> Args {
 func main~EntryPoint(args := Args'parse) -> void | Int {
     moduleDirs : mut = List~[Str~MemManaged]{};
     findModules(moduleDirs, args.dir, args.dir);
+    filterModules(moduleDirs, args.module);
     print(f"Found {moduleDirs'len} xy modules\n");
 
     mkdir(".xytest_cache");
@@ -76,6 +88,18 @@ func findModules(foundDirs: mut List~Str~MemManaged, dir: Str~MemManaged, module
             foundDirs'append(d =>);
         }
     }
+}
+
+func filterModules(modules: mut List~Str~MemManaged, filter: Str) {
+    if (filter.size <= 0) return;
+
+    matching: %modules;
+    for (module in modules) {
+        if (module'find(filter) >= 0) {
+            matching'append(module =>);
+        }
+    }
+    modules =< matching;
 }
 
 *struct TestVector {
