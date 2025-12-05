@@ -2,10 +2,10 @@ import xy.ctti;
 import libxy.stdio;
 
 struct TestError {
-    msg: Str~MemManaged;
+    msg: Str;
 }
 
-func to(te: TestError, :Bool) te.msg.size != 0;
+func to(te: TestError, :Bool) te.msg'isEmpty'not;
 
 *func unhandled(te: TestError) {
     print(te.msg);
