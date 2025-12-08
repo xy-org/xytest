@@ -2,7 +2,7 @@ import xy.ctti;
 import libxy.stdio;
 
 struct TestError {
-    msg: Str;
+    msg: String;
 }
 
 func to(te: TestError, :Bool) te.msg'isEmpty'not;
@@ -13,7 +13,7 @@ func to(te: TestError, :Bool) te.msg'isEmpty'not;
 
 *func assert(
     cond: Bool,
-    msg: Str = "",
+    msg: String = "",
 ) if (!cond) fail(
     file=fileof(^cond), line=linenoof(^cond),
     src=srclineof(^cond), msg=msg,
@@ -23,17 +23,17 @@ func to(te: TestError, :Bool) te.msg'isEmpty'not;
     lhs: pseudo Any, rhs: pseudo Any,
     cmpRes : Bool = ^cmpEq(lhs, rhs),
 ) if (!cmpRes) {
-    msg : Fstr;
+    msg : Fstring;
     ^append(msg, lhs);
     append(msg, " != ");
     ^append(msg, rhs);
     fail(
         file=fileof(^lhs), line=linenoof(^lhs), src=srclineof(^lhs),
-        msg=msg'to(Str)
+        msg=msg'to(String)
     );
 };
 
-func fail(file: Str, line: Uint, src: Str, msg: Str) -> void | TestError {
+func fail(file: String, line: Uint, src: String, msg: String) -> void | TestError {
     fullmsg := f"""
         \n{file}:{line} Assertion failed
         > {src}

@@ -5,10 +5,10 @@ import libxy.(string, stdio, fs, list, memory, error, process, perf, tty);
 ;; Collect, Compile, and Run Tests
 struct Args {
     ;; Where to look for tests
-    dir : Str;
+    dir : String;
 
     ;; Run tests only form this module
-    module: Str;
+    module: String;
 }
 
 func parse(:Args) -> Args {
@@ -38,7 +38,7 @@ func parse(:Args) -> Args {
 
 ;; Entry point for the test discovery stage
 func main~EntryPoint(args := Args'parse) -> void | Int {
-    moduleDirs : mut = List~Str{};
+    moduleDirs : mut = List~String{};
     findModules(moduleDirs, args.dir, args.dir);
     filterModules(moduleDirs, args.module);
     print(f"Found {moduleDirs'len} xy modules\n");
@@ -54,7 +54,7 @@ func main~EntryPoint(args := Args'parse) -> void | Int {
     runnerFile = File{-1};
 
     print("Building test runner executable...\n");
-    xycArgs := List~Str @ {
+    xycArgs := List~String @ {
         ".xytest_cache/xytestRunner.xy", "-L", "..", "-L", "deps/",
         "-o", "bin/run-tests",
     };
@@ -65,11 +65,11 @@ func main~EntryPoint(args := Args'parse) -> void | Int {
     }
 
     print("Running tests...\n");
-    runArgs : List~Str;
+    runArgs : List~String;
     error run("bin/run-tests",runArgs)'wait();
 }
 
-func findModules(foundDirs: mut List~Str, dir: Str, moduleName: Str) {
+func findModules(foundDirs: mut List~String, dir: String, moduleName: String) {
     print(f"Looking for tests in {dir}\n");
 
     isModule : Bool;
@@ -90,7 +90,7 @@ func findModules(foundDirs: mut List~Str, dir: Str, moduleName: Str) {
     }
 }
 
-func filterModules(modules: mut List~Str, filter: Str) {
+func filterModules(modules: mut List~String, filter: String) {
     if (filter'isEmpty) return;
 
     matching: %modules;
@@ -103,8 +103,8 @@ func filterModules(modules: mut List~Str, filter: Str) {
 }
 
 *struct TestVector {
-    name: Str;
-    package: Str;
+    name: String;
+    package: String;
     testCb: ()->();
 }
 
@@ -130,7 +130,7 @@ func filterModules(modules: mut List~Str, filter: Str) {
     );
 }
 
-func badge(num: Usize) -> Str {
+func badge(num: Usize) -> String {
     if (num > 0 && num <= 2) return "🥳 ";
     if (num == 42) return "🤪 ";
     if (num == 69) return "☯️ ";
