@@ -2,7 +2,7 @@ import xy.ctti;
 import libxy.stdio;
 
 struct TestError {
-    msg: String;
+    msg: String,
 }
 
 func to(te: TestError, :Bool) te.msg'isEmpty'not;

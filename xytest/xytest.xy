@@ -5,10 +5,10 @@ import libxy.(string, stdio, fs, list, memory, error, process, perf, tty);
 ;; Collect, Compile, and Run Tests
 struct Args {
     ;; Where to look for tests
-    dir : String;
+    dir : String,
 
     ;; Run tests only form this module
-    module: String;
+    module: String,
 }
 
 func parse(:Args) -> Args {
@@ -103,9 +103,9 @@ func filterModules(modules: mut List~String, filter: String) {
 }
 
 *struct TestVector {
-    name: String;
-    package: String;
-    testCb: ()->();
+    name: String,
+    package: String,
+    testCb: ()->(),
 }
 
 *func runTests(tests: List~TestVector) -> void | Int {
