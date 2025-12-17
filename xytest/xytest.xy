@@ -16,7 +16,7 @@ func parse(:Args) -> Args {
 
     schema: CliSchema;
     schema'prog("xytest", short="Discover and Run Tests");
-    schema'param("dir", .positional);
+    schema'param("dir", +positional);
     schema'param(
         "module", short=`m`,
         desc="Compile and run tests only from modules matching given name",
@@ -44,7 +44,7 @@ func main~EntryPoint(args := Args'parse) -> void | Int {
     print(f"Found {moduleDirs'len} xy modules\n");
 
     mkdir(".xytest_cache");
-    runnerFile : mut = open(".xytest_cache/xytestRunner.xy", OpenFlags{.create, .writeOnly, .truncate});
+    runnerFile : mut = open(".xytest_cache/xytestRunner.xy", OpenFlags{+create, +writeOnly, +truncate});
     for (dir in moduleDirs) {
         runnerFile'write(f"import {dir};\n");
     }
@@ -73,7 +73,7 @@ func findModules(foundDirs: mut List~String, dir: String, moduleName: String) {
     print(f"Looking for tests in {dir}\n");
 
     isModule : Bool;
-    for (node in ls(dir, .type)) {
+    for (node in ls(dir, +type)) {
         if (node.type.dir) {
             subdir := path"{dir}/{node.name}";
             submodule := (
@@ -82,7 +82,7 @@ func findModules(foundDirs: mut List~String, dir: String, moduleName: String) {
             );
             findModules(foundDirs, subdir, submodule);
         } elif (!isModule && node.type.file && node.name'endswith(".xy")) {
-            .isModule;
+            +isModule;
             print(f"Found xy module in {dir} {moduleName}\n");
             d : mut = moduleName'copy;
             foundDirs'append(d =>);
@@ -124,9 +124,9 @@ func filterModules(modules: mut List~String, filter: String) {
 
     badge := badge(tests'len);
     print(
-        f"{Esc{.bold, .fg.green}}\
+        f"{Esc{+bold, +fg.green}}\
         ===== {tests'len} passed in {elapsedS}.{elapsedDecis}s {badge}=====\
-        {Esc{.reset}}\n"
+        {Esc{+reset}}\n"
     );
 }
 
